@@ -1,4 +1,6 @@
-# Crud example
+# Crud example 
+
+[![Build Status](https://travis-ci.com/al-tr/playing-with-go.svg?branch=master)](https://travis-ci.com/al-tr/playing-with-go)
 
 Handlers map:
 

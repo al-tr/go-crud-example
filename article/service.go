@@ -26,14 +26,24 @@ func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Get articles not deleted")
 
-	articles := getAllArticlesNotDeleted()
+	articlesFromDatabase, err := getAllArticlesNotDeleted()
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
+
+	articles := articlesFromDatabase
 
 	log.Print("Got ", len(articles), " articles")
 
 	articleJson, err := json.Marshal(articles)
-	util.Panicerr(err)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(200)
 	w.Write(articleJson)
 }
 
@@ -51,14 +61,22 @@ func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Get articles all")
 
-	articles := getAllArticles()
+	articles, err := getAllArticles()
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	log.Print("Got ", len(articles), " articles")
 
 	articleJson, err := json.Marshal(articles)
-	util.Panicerr(err)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(200)
 	w.Write(articleJson)
 }
 
@@ -84,11 +102,20 @@ func GetArticleById(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Get article by id: '", id, "'")
 
-	articleById := getArticleById(id)
+	articleById, err := getArticleById(id)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
+
 	articleJson, err := json.Marshal(articleById)
-	util.Panicerr(err)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(200)
 	w.Write(articleJson)
 }
 
@@ -122,17 +149,22 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articleFromDatabase := getArticleById(*article.Uuid)
+	articleFromDatabase, err := getArticleById(*article.Uuid)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
+
 	log.Print("Found in db: ", articleFromDatabase)
 
 	var errors []string
-	if util.StringNilOrEmpty(article.Text) {
+	if util.StringNilOrEmpty(articleFromDatabase.Text) {
 		errors = append(errors, "text must not be empty")
 	}
-	if util.StringNilOrEmpty(article.Title) {
+	if util.StringNilOrEmpty(articleFromDatabase.Title) {
 		errors = append(errors, "title must not be empty")
 	}
-	if util.StringNilOrEmpty(article.Publisher) {
+	if util.StringNilOrEmpty(articleFromDatabase.Publisher) {
 		errors = append(errors, "publisher must not be empty")
 	}
 
@@ -153,7 +185,11 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 		articleToInsertIntoDb.IsDeleted = article.IsDeleted
 	}
 
-	insertedArticle := updateArticle(articleToInsertIntoDb)
+	insertedArticle, err := updateArticle(articleToInsertIntoDb)
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	articleJson, err := json.Marshal(insertedArticle)
 	if err != nil {
@@ -162,6 +198,7 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(200)
 	w.Write(articleJson)
 }
 
@@ -177,7 +214,11 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articles := getAllArticlesNotDeleted()
+	articles, err := getAllArticlesNotDeleted()
+	if err != nil {
+		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
 
 	var numberOfDeletedDocs = 0
 	var articlesToUpdate []Article
@@ -203,7 +244,18 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	bulkUpdateArticles(articlesToUpdate)
+	updateArticles, ers := bulkUpdateArticles(articlesToUpdate)
+
+	var response MultipleResponse
+	for i := 0; i < len(updateArticles); i++ {
+		var data DataResponse
+		data.Id = updateArticles[i].Uuid
+		errors := []string{ers[i].Error()}
+		data.Errors = &errors
+
+		responseTmp := append(*response.Responses, data)
+		response.Responses = &responseTmp
+	}
 	util.CreateDataStringResponse(w, 200, "Docs deleted during Clean: "+strconv.Itoa(numberOfDeletedDocs))
 }
 
@@ -225,6 +277,6 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteArticleById(id)
+	deleteArticleById(id, *user)
 	util.CreateDataStringResponse(w, 200, "everything's good for id")
 }

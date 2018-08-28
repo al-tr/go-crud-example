@@ -10,3 +10,13 @@ type Article struct {
 	DateUpdated   *string `json:"dateUpdated"`
 	IsDeleted     *bool   `json:"isDeleted"`
 }
+
+type MultipleResponse struct {
+	Responses *[]DataResponse `json:"responses"`
+}
+
+type DataResponse struct {
+	Id     *string   `json:"id"`
+	Errors *[]string `json:"errors"`
+	Trace  *string   `json:"trace"`
+}

@@ -18,15 +18,18 @@ func CreateDataStringResponse(w http.ResponseWriter, code int, data string) {
 	Panicerr(e)
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(code)
 	w.Write(responseJson)
 }
 
 func CreateErrorResponse(w http.ResponseWriter, code int, errors []string) {
+	//debug.PrintStack()
 	response := ErrorResponse{Code: code, Errors: errors}
 	responseJson, e := json.Marshal(response)
 	Panicerr(e)
 
 	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(code)
 	w.Write(responseJson)
 }
 

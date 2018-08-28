@@ -1,8 +1,10 @@
 package article
 
 import (
+	"crud/auth"
 	"crud/util"
 	"encoding/json"
+	"errors"
 	"github.com/boltdb/bolt"
 	"github.com/google/uuid"
 	"log"
@@ -44,7 +46,7 @@ func InitDatabase() {
 	})
 }
 
-func getAllArticles() []Article {
+func getArticles(includeDeleted bool) ([]Article, error) {
 	var articles []Article
 
 	err := db.View(func(tx *bolt.Tx) error {
@@ -56,89 +58,99 @@ func getAllArticles() []Article {
 
 			var tmp *Article
 			err := json.Unmarshal(value, &tmp)
-			util.Panicerr(err)
-
-			articles = append(articles, *tmp)
-
-			return nil
-		})
-		return nil
-	})
-	util.Panicerr(err)
-	log.Print("Received from db: ", articles)
-
-	return articles
-}
-
-func getAllArticlesNotDeleted() []Article {
-	var articles []Article
-
-	err := db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(articleBucket))
-		bucket.ForEach(func(key, value []byte) error {
-			if value == nil {
-				return nil
+			if err != nil {
+				return err
 			}
 
-			var tmp *Article
-			err := json.Unmarshal(value, &tmp)
-			util.Panicerr(err)
-
-			if tmp.IsDeleted == nil || !*tmp.IsDeleted {
+			if includeDeleted {
+				// all articles
 				articles = append(articles, *tmp)
+			} else {
+				//excluding articles marked as deleted
+				if tmp.IsDeleted == nil || !*tmp.IsDeleted {
+					articles = append(articles, *tmp)
+				}
 			}
 
 			return nil
 		})
 		return nil
 	})
-	util.Panicerr(err)
+	if err != nil {
+		return articles, err
+	}
 	log.Print("Received from db: ", articles)
 
-	return articles
+	return articles, nil
 }
 
-func getArticleById(id string) *Article {
+func getAllArticles() ([]Article, error) {
+	return getArticles(true)
+}
+
+func getAllArticlesNotDeleted() ([]Article, error) {
+	return getArticles(false)
+}
+
+func getArticleById(id string) (*Article, error) {
 	var article *Article
 	err := db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(articleBucket))
 		articleFromDb := bucket.Get([]byte(id))
+		if articleFromDb == nil {
+			return errors.New("No article found with "+id)
+		}
 		err := json.Unmarshal(articleFromDb, &article)
-		util.Panicerr(err)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
-	util.Panicerr(err)
+	if err != nil {
+		return nil, err
+	}
 	log.Print("Received from db: ", article)
 
-	return article
+	return article, nil
 }
 
-func updateArticle(article Article) *Article {
+func updateArticle(article Article) (*Article, error) {
 	var articleInserted *Article
 	err := db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(articleBucket))
 
 		articleJson, err := json.Marshal(article)
-		util.Panicerr(err)
+		if err != nil {
+			return err
+		}
 
 		bucket.Put([]byte(*article.Uuid), articleJson)
 		articleFromDb := bucket.Get([]byte(*article.Uuid))
-		er := json.Unmarshal(articleFromDb, &articleInserted)
-		util.Panicerr(er)
+		err = json.Unmarshal(articleFromDb, &articleInserted)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
-	util.Panicerr(err)
+	if err != nil {
+		return &article, err
+	}
 	log.Print("Received from db after adding: ", articleInserted)
 
-	return articleInserted
+	return articleInserted, nil
 }
 
-func bulkUpdateArticles(articles []Article) {
+func bulkUpdateArticles(articles []Article) ([]Article, []error){
+	var articlesResponses []Article
+	var err []error
 	for i := 0; i < len(articles); i++ {
-		updateArticle(articles[i])
+		article, e := updateArticle(articles[i])
+		articlesResponses = append(articlesResponses, *article)
+		err = append(err, e)
 	}
+	return articlesResponses, err
 }
 
-func deleteArticleById(id string) {
+func deleteArticleById(id string, user auth.User) {
 
 }

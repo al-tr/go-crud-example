@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Articles      = "/articles"
-	ArticlesSlash = "/articles/"
+	Articles      = "/articles"	 // url mapping
+	ArticlesSlash = "/articles/" // url mapping
 )
 
 func UrlArticle(w http.ResponseWriter, r *http.Request) {

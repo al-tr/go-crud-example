@@ -25,7 +25,11 @@ func InitDatabase() {
 		var id string
 		id = uuid.New().String()
 
-		article := Article{Uuid: &id}
+		now := util.NowUtc()
+		email := "tester@rago.com"
+		text := "Random text for the first entry"
+		title := "Title?"
+		article := Article{Uuid: &id, DatePublished: &now, Publisher: &email, Text: &text, Title: &title}
 		bytes, err := json.Marshal(article)
 		util.Panicerr(err)
 

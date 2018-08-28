@@ -151,9 +151,11 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 
 	articleFromDatabase, err := getArticleById(*article.Uuid)
 	if err != nil {
+		// TODO: create
 		util.CreateErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
+	// TODO update
 
 	log.Print("Found in db: ", articleFromDatabase)
 
@@ -185,7 +187,7 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 		articleToInsertIntoDb.IsDeleted = article.IsDeleted
 	}
 
-	insertedArticle, err := updateArticle(articleToInsertIntoDb)
+	insertedArticle, err := putArticle(articleToInsertIntoDb)
 	if err != nil {
 		util.CreateErrorResponse(w, 500, []string{err.Error()})
 		return
@@ -244,7 +246,7 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	updateArticles, ers := bulkUpdateArticles(articlesToUpdate)
+	updateArticles, ers := bulkPutArticles(articlesToUpdate)
 
 	var response MultipleResponse
 	for i := 0; i < len(updateArticles); i++ {

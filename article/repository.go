@@ -114,7 +114,7 @@ func getArticleById(id string) (*Article, error) {
 	return article, nil
 }
 
-func updateArticle(article Article) (*Article, error) {
+func putArticle(article Article) (*Article, error) {
 	var articleInserted *Article
 	err := db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(articleBucket))
@@ -140,11 +140,11 @@ func updateArticle(article Article) (*Article, error) {
 	return articleInserted, nil
 }
 
-func bulkUpdateArticles(articles []Article) ([]Article, []error){
+func bulkPutArticles(articles []Article) ([]Article, []error){
 	var articlesResponses []Article
 	var err []error
 	for i := 0; i < len(articles); i++ {
-		article, e := updateArticle(articles[i])
+		article, e := putArticle(articles[i])
 		articlesResponses = append(articlesResponses, *article)
 		err = append(err, e)
 	}

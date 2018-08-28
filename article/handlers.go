@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Articles      = "/articles"	 // url mapping
+	Articles      = "/articles"  // url mapping
 	ArticlesSlash = "/articles/" // url mapping
 )
 

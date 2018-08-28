@@ -98,7 +98,7 @@ func getArticleById(id string) (*Article, error) {
 		bucket := tx.Bucket([]byte(articleBucket))
 		articleFromDb := bucket.Get([]byte(id))
 		if articleFromDb == nil {
-			return errors.New("No article found with "+id)
+			return errors.New("No article found with " + id)
 		}
 		err := json.Unmarshal(articleFromDb, &article)
 		if err != nil {
@@ -140,7 +140,7 @@ func putArticle(article Article) (*Article, error) {
 	return articleInserted, nil
 }
 
-func bulkPutArticles(articles []Article) ([]Article, []error){
+func bulkPutArticles(articles []Article) ([]Article, []error) {
 	var articlesResponses []Article
 	var err []error
 	for i := 0; i < len(articles); i++ {

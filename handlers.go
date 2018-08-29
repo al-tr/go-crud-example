@@ -1,4 +1,4 @@
-package article
+package main
 
 import (
 	"net/http"
@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	Articles      = "/articles"  // url mapping
-	ArticlesSlash = "/articles/" // url mapping
+	articlesUrl      = "/articles"
+	articlesSlashUrl = "/articles/"
 )
 
-func UrlArticle(w http.ResponseWriter, r *http.Request) {
+func urlArticle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		GetArticlesNotDeleted(w, r)
@@ -21,10 +21,10 @@ func UrlArticle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UrlArticleSlash(w http.ResponseWriter, r *http.Request) {
+func urlArticleSlash(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		id := strings.TrimPrefix(r.URL.Path, ArticlesSlash)
+		id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 		if len(id) == 0 {
 			GetArticlesNotDeleted(w, r)
 			return
@@ -37,7 +37,7 @@ func UrlArticleSlash(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		PutArticle(w, r)
 	case "DELETE":
-		id := strings.TrimPrefix(r.URL.Path, ArticlesSlash)
+		id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 		if len(id) == 0 {
 			Clean(w, r)
 			return

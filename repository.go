@@ -1,8 +1,6 @@
-package article
+package main
 
 import (
-	"crud/auth"
-	"crud/util"
 	"encoding/json"
 	"errors"
 	"github.com/boltdb/bolt"
@@ -17,23 +15,23 @@ var db *bolt.DB
 func InitDatabase() {
 	dbt, err := bolt.Open("my.db", 0600, nil)
 	db = dbt // thanks, go
-	util.Panicerr(err)
+	panicerr(err)
 
 	log.Print(db.Info().Data)
 	db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(articleBucket))
-		util.Panicerr(err)
+		panicerr(err)
 
 		var id string
 		id = uuid.New().String()
 
-		now := util.NowUtc()
+		now := nowUtc()
 		email := "tester@rago.com"
 		text := "Random text for the first entry"
 		title := "Title?"
 		article := Article{Uuid: &id, DatePublished: &now, Publisher: &email, Text: &text, Title: &title}
 		bytes, err := json.Marshal(article)
-		util.Panicerr(err)
+		panicerr(err)
 
 		key, _ := b.Cursor().First()
 		if key == nil {
@@ -151,6 +149,6 @@ func bulkPutArticles(articles []Article) ([]Article, []error) {
 	return articlesResponses, err
 }
 
-func deleteArticleById(id string, user auth.User) {
+func deleteArticleById(id string, user User) {
 
 }

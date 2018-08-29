@@ -1,14 +1,13 @@
 package main
 
 import (
-	"crud/article"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
-	article.InitDatabase()
+	InitDatabase()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -17,7 +16,7 @@ func main() {
 		port = defaultPort
 	}
 
-	http.HandleFunc(article.Articles, article.UrlArticle)
-	http.HandleFunc(article.ArticlesSlash, article.UrlArticleSlash)
+	http.HandleFunc(articlesUrl, urlArticle)
+	http.HandleFunc(articlesSlashUrl, urlArticleSlash)
 	http.ListenAndServe(":"+port, nil)
 }

@@ -1,4 +1,4 @@
-package article
+package main
 
 type Article struct {
 	Uuid          *string `json:"uuid"`

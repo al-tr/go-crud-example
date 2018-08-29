@@ -1,8 +1,6 @@
-package article
+package main
 
 import (
-	"crud/auth"
-	"crud/util"
 	"encoding/json"
 	"github.com/google/uuid"
 	"io/ioutil"
@@ -13,14 +11,14 @@ import (
 )
 
 func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
@@ -28,7 +26,7 @@ func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
 
 	articlesFromDatabase, err := getAllArticlesNotDeleted()
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -38,7 +36,7 @@ func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
 
 	articleJson, err := json.Marshal(articles)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -48,14 +46,14 @@ func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
@@ -63,7 +61,7 @@ func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
 
 	articles, err := getAllArticles()
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -71,7 +69,7 @@ func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
 
 	articleJson, err := json.Marshal(articles)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -81,20 +79,20 @@ func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetArticleById(w http.ResponseWriter, r *http.Request) {
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
 	log.Print("Get article by id")
 
-	id := strings.TrimPrefix(r.URL.Path, ArticlesSlash)
+	id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 	if len(id) == 0 {
 		GetArticlesNotDeleted(w, r)
 		return
@@ -104,13 +102,13 @@ func GetArticleById(w http.ResponseWriter, r *http.Request) {
 
 	articleById, err := getArticleById(id)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
 	articleJson, err := json.Marshal(articleById)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -120,14 +118,14 @@ func GetArticleById(w http.ResponseWriter, r *http.Request) {
 }
 
 func PutArticle(w http.ResponseWriter, r *http.Request) {
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
@@ -136,7 +134,7 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		util.CreateErrorResponse(w, 400, []string{err.Error()})
+		createErrorResponse(w, 400, []string{err.Error()})
 		return
 	}
 
@@ -145,14 +143,14 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	var article *Article
 	err = json.Unmarshal(body, &article)
 	if err != nil {
-		util.CreateErrorResponse(w, 400, []string{err.Error()})
+		createErrorResponse(w, 400, []string{err.Error()})
 		return
 	}
 
 	articleFromDatabase, err := getArticleById(*article.Uuid)
 	if err != nil {
 		// TODO: create
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 	// TODO update
@@ -160,18 +158,18 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	log.Print("Found in db: ", articleFromDatabase)
 
 	var errors []string
-	if util.StringNilOrEmpty(articleFromDatabase.Text) {
+	if stringNilOrEmpty(articleFromDatabase.Text) {
 		errors = append(errors, "text must not be empty")
 	}
-	if util.StringNilOrEmpty(articleFromDatabase.Title) {
+	if stringNilOrEmpty(articleFromDatabase.Title) {
 		errors = append(errors, "title must not be empty")
 	}
-	if util.StringNilOrEmpty(articleFromDatabase.Publisher) {
+	if stringNilOrEmpty(articleFromDatabase.Publisher) {
 		errors = append(errors, "publisher must not be empty")
 	}
 
 	if len(errors) > 0 {
-		util.CreateErrorResponse(w, 400, errors)
+		createErrorResponse(w, 400, errors)
 		return
 	}
 
@@ -181,7 +179,7 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	articleToInsertIntoDb.Title = article.Title
 	articleToInsertIntoDb.Text = article.Text
 	articleToInsertIntoDb.Publisher = user.Email
-	formattedTime := util.NowUtc()
+	formattedTime := nowUtc()
 	articleToInsertIntoDb.DatePublished = &formattedTime
 	if article.IsDeleted != nil {
 		articleToInsertIntoDb.IsDeleted = article.IsDeleted
@@ -189,13 +187,13 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 
 	insertedArticle, err := putArticle(articleToInsertIntoDb)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
 	articleJson, err := json.Marshal(insertedArticle)
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -205,20 +203,20 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func Clean(w http.ResponseWriter, r *http.Request) {
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
 	articles, err := getAllArticlesNotDeleted()
 	if err != nil {
-		util.CreateErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
@@ -239,7 +237,7 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 				booleanTrue := true
 				articleFromDb.IsDeleted = &booleanTrue
 				articleFromDb.Editor = user.Email
-				timeNow := util.NowUtc()
+				timeNow := nowUtc()
 				articleFromDb.DateUpdated = &timeNow
 
 				articlesToUpdate = append(articlesToUpdate, articleFromDb)
@@ -258,27 +256,27 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 		responseTmp := append(*response.Responses, data)
 		response.Responses = &responseTmp
 	}
-	util.CreateDataStringResponse(w, 200, "Docs deleted during Clean: "+strconv.Itoa(numberOfDeletedDocs))
+	createDataStringResponse(w, 200, "Docs deleted during Clean: "+strconv.Itoa(numberOfDeletedDocs))
 }
 
 func DeleteArticle(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, Articles)
+	id := strings.TrimPrefix(r.URL.Path, articlesUrl)
 	if len(id) == 0 {
 		Clean(w, r)
 		return
 	}
 
-	user, e := auth.AuthenticateRequest(r)
+	user, e := authenticateRequest(r)
 	if e != nil {
-		util.CreateErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
 		return
 	}
 
 	if user.Email == nil {
-		util.CreateErrorResponse(w, 403, []string{"not authorized"})
+		createErrorResponse(w, 403, []string{"not authorized"})
 		return
 	}
 
 	deleteArticleById(id, *user)
-	util.CreateDataStringResponse(w, 200, "everything's good for id")
+	createDataStringResponse(w, 200, "everything's good for id")
 }

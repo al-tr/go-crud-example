@@ -7,6 +7,7 @@ Handlers map:
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | GET | /articles(/) | Gets all articles that don't have isDeleted=true |
+| GET | /articles/all | Gets all articles (priority over {id}) |
 | GET | /articles/{id} | Gets article by id |
 | PUT | /articles(/) | Creates (no id in body / id in body and id not found) or updates (id in body and id found) an article from the post body, validates all the stuff before update | 
 | DELETE | /articles(/) | Cleans the database from bad articles: marks them as isDeleted=true |

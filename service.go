@@ -244,12 +244,12 @@ func cleanService(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	updateArticles, ers := bulkPutArticles(articlesToUpdate)
+	updatedArticles, ers := bulkPutArticles(articlesToUpdate)
 
 	var response MultipleResponse
-	for i := 0; i < len(updateArticles); i++ {
+	for i := 0; i < len(updatedArticles); i++ {
 		var data DataResponse
-		data.Id = updateArticles[i].Uuid
+		data.Id = updatedArticles[i].Uuid
 		errors := []string{ers[i].Error()}
 		data.Errors = &errors
 
@@ -295,5 +295,5 @@ func deleteArticleService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createDataStringResponse(w, 200, "article " + id + " is marked as deleted")
+	createDataStringResponse(w, 200, "article with id '"+id+"' is marked as deleted")
 }

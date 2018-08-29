@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Auth userinfo model
+// UserInfo - auth model
 type UserInfo struct {
 	Email *string
 }

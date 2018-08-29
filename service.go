@@ -226,11 +226,11 @@ func cleanService(w http.ResponseWriter, r *http.Request) {
 		articleFromDb := articles[i]
 
 		if articleFromDb.IsDeleted == nil || *articleFromDb.IsDeleted == false {
-			if articleFromDb.Publisher == nil || len(*articleFromDb.Publisher) == 0 ||
-				articleFromDb.Title == nil || len(*articleFromDb.Title) == 0 ||
-				articleFromDb.Text == nil || len(*articleFromDb.Text) == 0 ||
-				articleFromDb.Publisher == nil || len(*articleFromDb.Publisher) == 0 ||
-				articleFromDb.DatePublished == nil || len(*articleFromDb.DatePublished) == 0 {
+			if stringNilOrEmpty(articleFromDb.Publisher) ||
+				stringNilOrEmpty(articleFromDb.Title) ||
+				stringNilOrEmpty(articleFromDb.Text) ||
+				stringNilOrEmpty(articleFromDb.Publisher) ||
+				stringNilOrEmpty(articleFromDb.DatePublished) {
 
 				numberOfDeletedDocs++
 

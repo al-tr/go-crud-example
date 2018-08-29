@@ -1,6 +1,6 @@
-# Crud example 
+# CRUD example in Go language
 
-[![Build Status](https://travis-ci.com/al-tr/playing-with-go.svg?branch=master)](https://travis-ci.com/al-tr/playing-with-go) [![Go Report Card](https://goreportcard.com/badge/github.com/al-tr/playing-with-go)](https://goreportcard.com/report/github.com/al-tr/playing-with-go) [![Open Source Helpers](https://www.codetriage.com/al-tr/playing-with-go/badges/users.svg)](https://www.codetriage.com/al-tr/playing-with-go) [![Coverage Status](https://coveralls.io/repos/github/al-tr/playing-with-go/badge.svg?branch=master)](https://coveralls.io/github/al-tr/playing-with-go?branch=master)
+[![Build Status](https://travis-ci.com/al-tr/go-crud-example.svg?branch=master)](https://travis-ci.com/al-tr/go-crud-example) [![Go Report Card](https://goreportcard.com/badge/github.com/al-tr/go-crud-example)](https://goreportcard.com/report/github.com/al-tr/go-crud-example) [![Open Source Helpers](https://www.codetriage.com/al-tr/go-crud-example/badges/users.svg)](https://www.codetriage.com/al-tr/go-crud-example) [![Coverage Status](https://coveralls.io/repos/github/al-tr/go-crud-example/badge.svg?branch=master)](https://coveralls.io/github/al-tr/go-crud-example?branch=master)
 
 Handlers map:
 

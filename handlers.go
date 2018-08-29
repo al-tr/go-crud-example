@@ -13,11 +13,11 @@ const (
 func urlArticle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		GetArticlesNotDeleted(w, r)
+		getArticlesNotDeletedService(w, r)
 	case "PUT":
-		PutArticle(w, r)
+		putArticleService(w, r)
 	case "DELETE":
-		Clean(w, r)
+		cleanService(w, r)
 	}
 }
 
@@ -26,22 +26,22 @@ func urlArticleSlash(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 		if len(id) == 0 {
-			GetArticlesNotDeleted(w, r)
+			getArticlesNotDeletedService(w, r)
 			return
 		}
 		if id == "all" {
-			GetArticlesAll(w, r)
+			getArticlesAllService(w, r)
 			return
 		}
-		GetArticleById(w, r)
+		getArticleByIdService(w, r)
 	case "PUT":
-		PutArticle(w, r)
+		putArticleService(w, r)
 	case "DELETE":
 		id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 		if len(id) == 0 {
-			Clean(w, r)
+			cleanService(w, r)
 			return
 		}
-		DeleteArticle(w, r)
+		deleteArticleService(w, r)
 	}
 }

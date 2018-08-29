@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
+func getArticlesNotDeletedService(w http.ResponseWriter, r *http.Request) {
 	user, e := authenticateRequest(r)
 	if e != nil {
 		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
@@ -45,7 +45,7 @@ func GetArticlesNotDeleted(w http.ResponseWriter, r *http.Request) {
 	w.Write(articleJson)
 }
 
-func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
+func getArticlesAllService(w http.ResponseWriter, r *http.Request) {
 	user, e := authenticateRequest(r)
 	if e != nil {
 		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
@@ -78,7 +78,7 @@ func GetArticlesAll(w http.ResponseWriter, r *http.Request) {
 	w.Write(articleJson)
 }
 
-func GetArticleById(w http.ResponseWriter, r *http.Request) {
+func getArticleByIdService(w http.ResponseWriter, r *http.Request) {
 	user, e := authenticateRequest(r)
 	if e != nil {
 		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
@@ -94,7 +94,7 @@ func GetArticleById(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 	if len(id) == 0 {
-		GetArticlesNotDeleted(w, r)
+		getArticlesNotDeletedService(w, r)
 		return
 	}
 
@@ -117,7 +117,7 @@ func GetArticleById(w http.ResponseWriter, r *http.Request) {
 	w.Write(articleJson)
 }
 
-func PutArticle(w http.ResponseWriter, r *http.Request) {
+func putArticleService(w http.ResponseWriter, r *http.Request) {
 	user, e := authenticateRequest(r)
 	if e != nil {
 		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
@@ -202,7 +202,7 @@ func PutArticle(w http.ResponseWriter, r *http.Request) {
 	w.Write(articleJson)
 }
 
-func Clean(w http.ResponseWriter, r *http.Request) {
+func cleanService(w http.ResponseWriter, r *http.Request) {
 	user, e := authenticateRequest(r)
 	if e != nil {
 		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
@@ -256,13 +256,13 @@ func Clean(w http.ResponseWriter, r *http.Request) {
 		responseTmp := append(*response.Responses, data)
 		response.Responses = &responseTmp
 	}
-	createDataStringResponse(w, 200, "Docs deleted during Clean: "+strconv.Itoa(numberOfDeletedDocs))
+	createDataStringResponse(w, 200, "Docs deleted during cleanService: "+strconv.Itoa(numberOfDeletedDocs))
 }
 
-func DeleteArticle(w http.ResponseWriter, r *http.Request) {
+func deleteArticleService(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, articlesUrl)
 	if len(id) == 0 {
-		Clean(w, r)
+		cleanService(w, r)
 		return
 	}
 

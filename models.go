@@ -1,5 +1,6 @@
 package main
 
+// Main model of the service
 type Article struct {
 	Uuid          *string `json:"uuid"`
 	Title         *string `json:"title"`
@@ -11,10 +12,12 @@ type Article struct {
 	IsDeleted     *bool   `json:"isDeleted"`
 }
 
+// Used for bulk requests
 type MultipleResponse struct {
 	Responses *[]DataResponse `json:"responses"`
 }
 
+// Basic model-result of an action over some article
 type DataResponse struct {
 	Id     *string   `json:"id"`
 	Errors *[]string `json:"errors"`

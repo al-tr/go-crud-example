@@ -24,7 +24,7 @@ func getArticlesNotDeletedService(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Get articles not deleted")
 
-	articlesFromDatabase, err := getAllArticlesNotDeleted()
+	articlesFromDatabase, err := getArticlesNotDeleted()
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
 		return
@@ -214,7 +214,7 @@ func cleanService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articles, err := getAllArticlesNotDeleted()
+	articles, err := getArticlesNotDeleted()
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
 		return

@@ -7,13 +7,17 @@ import (
 )
 
 func main() {
-	InitDatabase()
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName := "my.db"
+		log.Print("$DB_NAME is not set, using ", dbName)
+	}
+	initDatabase(dbName)
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		defaultPort := "8080"
-		log.Print("$PORT is not set, using ", defaultPort)
-		port = defaultPort
+		port := "8080"
+		log.Print("$PORT is not set, using ", port)
 	}
 
 	http.HandleFunc(articlesUrl, urlArticle)

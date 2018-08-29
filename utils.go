@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-// Json model response
+// StringResponse - Json model response
 type StringResponse struct {
 	Code int    `json:"code"`
 	Data string `json:"data"`
 }
 
-// Json model response
+// ErrorResponse - Json model response
 type ErrorResponse struct {
 	Code   int      `json:"code"`
 	Errors []string `json:"errors"`

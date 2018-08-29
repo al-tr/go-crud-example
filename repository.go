@@ -12,8 +12,8 @@ const articleBucket string = "articles"
 
 var db *bolt.DB
 
-func InitDatabase() {
-	dbt, err := bolt.Open("my.db", 0600, nil)
+func initDatabase(dbName string) {
+	dbt, err := bolt.Open(dbName, 0600, nil)
 	db = dbt // thanks, go
 	panicerr(err)
 
@@ -86,7 +86,7 @@ func getAllArticles() ([]Article, error) {
 	return getArticles(true)
 }
 
-func getAllArticlesNotDeleted() ([]Article, error) {
+func getArticlesNotDeleted() ([]Article, error) {
 	return getArticles(false)
 }
 
@@ -149,6 +149,6 @@ func bulkPutArticles(articles []Article) ([]Article, []error) {
 	return articlesResponses, err
 }
 
-func deleteArticleById(id string, user User) {
+func deleteArticleById(id string, user UserInfo) {
 
 }

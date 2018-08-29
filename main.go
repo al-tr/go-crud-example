@@ -9,14 +9,14 @@ import (
 func main() {
 	dbName := os.Getenv("DB_NAME")
 	if dbName == "" {
-		dbName := "my.db"
+		dbName = "my.db"
 		log.Print("$DB_NAME is not set, using ", dbName)
 	}
 	initDatabase(dbName)
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port := "8080"
+		port = "8080"
 		log.Print("$PORT is not set, using ", port)
 	}
 

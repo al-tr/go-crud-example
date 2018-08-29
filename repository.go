@@ -8,7 +8,9 @@ import (
 	"log"
 )
 
-const articleBucket string = "articles"
+const (
+	articleBucket string = "articles"
+)
 
 var db *bolt.DB
 
@@ -17,7 +19,7 @@ func initDatabase(dbName string) {
 	db = dbt // thanks, go
 	panicerr(err)
 
-	log.Print(db.Info().Data)
+	log.Print("db data ", db.Info().Data)
 	db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(articleBucket))
 		panicerr(err)
@@ -77,7 +79,7 @@ func getArticles(includeDeleted bool) ([]Article, error) {
 	if err != nil {
 		return articles, err
 	}
-	log.Print("Received from db: ", articles)
+	log.Print("Received from db ", len(articles), " articles")
 
 	return articles, nil
 }
@@ -122,7 +124,10 @@ func putArticle(article Article) (*Article, error) {
 			return err
 		}
 
-		bucket.Put([]byte(*article.Uuid), articleJson)
+		err = bucket.Put([]byte(*article.Uuid), articleJson)
+		if err != nil {
+			return err
+		}
 		articleFromDb := bucket.Get([]byte(*article.Uuid))
 		err = json.Unmarshal(articleFromDb, &articleInserted)
 		if err != nil {
@@ -147,8 +152,4 @@ func bulkPutArticles(articles []Article) ([]Article, []error) {
 		err = append(err, e)
 	}
 	return articlesResponses, err
-}
-
-func deleteArticleById(id string, user UserInfo) {
-
 }

@@ -260,7 +260,7 @@ func cleanService(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteArticleService(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, articlesUrl)
+	id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 	if len(id) == 0 {
 		cleanService(w, r)
 		return
@@ -277,6 +277,23 @@ func deleteArticleService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteArticleById(id, *user)
-	createDataStringResponse(w, 200, "everything's good for id")
+	article, err := getArticleById(id)
+	if err != nil {
+		createErrorResponse(w, 400, []string{err.Error()})
+		return
+	}
+
+	deleted := true
+	article.IsDeleted = &deleted
+	article.Editor = user.Email
+	now := nowUtc()
+	article.DateUpdated = &now
+
+	_, err = putArticle(*article)
+	if err != nil {
+		createErrorResponse(w, 400, []string{err.Error()})
+		return
+	}
+
+	createDataStringResponse(w, 200, "article " + id + " is marked as deleted")
 }

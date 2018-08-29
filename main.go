@@ -12,7 +12,7 @@ func main() {
 		dbName = "my.db"
 		log.Print("$DB_NAME is not set, using ", dbName)
 	}
-	initDatabase(dbName)
+	initDatabase(dbName, true)
 
 	port := os.Getenv("PORT")
 	if port == "" {

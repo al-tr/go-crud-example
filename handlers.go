@@ -14,8 +14,8 @@ func urlArticle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		getArticlesNotDeletedService(w, r)
-	case "PUT":
-		putArticleService(w, r)
+	case "POST":
+		postArticleService(w, r)
 	case "DELETE":
 		cleanService(w, r)
 	}
@@ -34,6 +34,8 @@ func urlArticleSlash(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		getArticleByIdService(w, r)
+	case "POST":
+		postArticleService(w, r)
 	case "PUT":
 		putArticleService(w, r)
 	case "DELETE":

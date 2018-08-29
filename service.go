@@ -34,6 +34,9 @@ func getArticlesNotDeletedService(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Got ", len(articles), " articles")
 
+	if len(articles) == 0 {
+		articles = make([]Article, 0) // workaround to get [] instead of null after json.Marshal
+	}
 	articleJson, err := json.Marshal(articles)
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
@@ -67,6 +70,9 @@ func getArticlesAllService(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Got ", len(articles), " articles")
 
+	if len(articles) == 0 {
+		articles = make([]Article, 0) // workaround to get [] instead of null after json.Marshal
+	}
 	articleJson, err := json.Marshal(articles)
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
@@ -90,8 +96,6 @@ func getArticleByIdService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Print("Get article by id")
-
 	id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
 	if len(id) == 0 {
 		getArticlesNotDeletedService(w, r)
@@ -102,11 +106,72 @@ func getArticleByIdService(w http.ResponseWriter, r *http.Request) {
 
 	articleById, err := getArticleById(id)
 	if err != nil {
-		createErrorResponse(w, 500, []string{err.Error()})
+		createErrorResponse(w, 400, []string{err.Error()})
 		return
 	}
 
 	articleJson, err := json.Marshal(articleById)
+	if err != nil {
+		createErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(200)
+	w.Write(articleJson)
+}
+
+func postArticleService(w http.ResponseWriter, r *http.Request) {
+	user, e := authenticateRequest(r)
+	if e != nil {
+		createErrorResponse(w, 401, []string{"not authenticated, provide email in header 'Authorization:Bearer email@example.com'"})
+		return
+	}
+
+	if user.Email == nil {
+		createErrorResponse(w, 403, []string{"not authorized"})
+		return
+	}
+
+	idFromUrl := strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, articlesUrl), "/")
+	if len(idFromUrl) > 0 {
+		createErrorResponse(w, 400, []string{"post with idFromUrl is not supported, use put"})
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		createErrorResponse(w, 400, []string{err.Error()})
+		return
+	}
+
+	log.Print("Post article '", body, "'")
+
+	var article *Article
+	err = json.Unmarshal(body, &article)
+	if err != nil {
+		createErrorResponse(w, 400, []string{err.Error()})
+		return
+	}
+
+	errors := validateArticle(article)
+	if len(errors) > 0 {
+		createErrorResponse(w, 400, errors)
+		return
+	}
+
+	now := nowUtc()
+	id := uuid.New().String()
+	var articleToInsertIntoDb = Article{Uuid: &id, Title: article.Title, Text: article.Text, Publisher: user.Email, DatePublished: &now, IsDeleted: article.IsDeleted}
+
+	createdArticle, err := putArticle(articleToInsertIntoDb)
+	if err != nil {
+		createErrorResponse(w, 500, []string{err.Error()})
+		return
+	}
+
+	articleJson, err := json.Marshal(createdArticle)
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
 		return
@@ -131,6 +196,12 @@ func putArticleService(w http.ResponseWriter, r *http.Request) {
 
 	log.Print("Put article")
 
+	id := strings.TrimPrefix(r.URL.Path, articlesSlashUrl)
+	if len(id) == 0 {
+		createErrorResponse(w, 400, []string{"provide id in path"})
+		return
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -147,51 +218,35 @@ func putArticleService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articleFromDatabase, err := getArticleById(*article.Uuid)
+	articleFromDatabase, err := getArticleById(id)
 	if err != nil {
-		// TODO: create
 		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
-	// TODO update
 
 	log.Print("Found in db: ", articleFromDatabase)
 
-	var errors []string
-	if stringNilOrEmpty(articleFromDatabase.Text) {
-		errors = append(errors, "text must not be empty")
+	if article.Title != nil {
+		articleFromDatabase.Title = article.Title
 	}
-	if stringNilOrEmpty(articleFromDatabase.Title) {
-		errors = append(errors, "title must not be empty")
+	if article.Text != nil {
+		articleFromDatabase.Text = article.Text
 	}
-	if stringNilOrEmpty(articleFromDatabase.Publisher) {
-		errors = append(errors, "publisher must not be empty")
-	}
-
-	if len(errors) > 0 {
-		createErrorResponse(w, 400, errors)
-		return
-	}
-
-	var articleToInsertIntoDb Article
-	id := uuid.New().String()
-	articleToInsertIntoDb.Uuid = &id
-	articleToInsertIntoDb.Title = article.Title
-	articleToInsertIntoDb.Text = article.Text
-	articleToInsertIntoDb.Publisher = user.Email
-	formattedTime := nowUtc()
-	articleToInsertIntoDb.DatePublished = &formattedTime
 	if article.IsDeleted != nil {
-		articleToInsertIntoDb.IsDeleted = article.IsDeleted
+		articleFromDatabase.IsDeleted = article.IsDeleted
 	}
+	articleFromDatabase.Editor = user.Email
+	formattedTime := nowUtc()
+	articleFromDatabase.DateUpdated = &formattedTime
 
-	insertedArticle, err := putArticle(articleToInsertIntoDb)
+
+	updatedArticle, err := putArticle(*articleFromDatabase)
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
 		return
 	}
 
-	articleJson, err := json.Marshal(insertedArticle)
+	articleJson, err := json.Marshal(updatedArticle)
 	if err != nil {
 		createErrorResponse(w, 500, []string{err.Error()})
 		return
@@ -200,6 +255,17 @@ func putArticleService(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-type", "application/json")
 	w.WriteHeader(200)
 	w.Write(articleJson)
+}
+
+func validateArticle(article *Article) []string {
+	var errors []string
+	if stringNilOrEmpty(article.Text) {
+		errors = append(errors, "text must not be empty")
+	}
+	if stringNilOrEmpty(article.Title) {
+		errors = append(errors, "title must not be empty")
+	}
+	return errors
 }
 
 func cleanService(w http.ResponseWriter, r *http.Request) {

@@ -14,7 +14,7 @@ const (
 
 var db *bolt.DB
 
-func initDatabase(dbName string) {
+func initDatabase(dbName string, initWithTheFirstEntry bool) {
 	dbt, err := bolt.Open(dbName, 0600, nil)
 	db = dbt // thanks, go
 	panicerr(err)
@@ -24,26 +24,36 @@ func initDatabase(dbName string) {
 		b, err := tx.CreateBucketIfNotExists([]byte(articleBucket))
 		panicerr(err)
 
-		var id string
-		id = uuid.New().String()
+		if initWithTheFirstEntry {
+			var id string
+			id = uuid.New().String()
 
-		now := nowUtc()
-		email := "tester@rago.com"
-		text := "Random text for the first entry"
-		title := "Title?"
-		article := Article{Uuid: &id, DatePublished: &now, Publisher: &email, Text: &text, Title: &title}
-		bytes, err := json.Marshal(article)
-		panicerr(err)
+			now := nowUtc()
+			email := "tester@rago.com"
+			text := "Random text for the first entry"
+			title := "Title?"
+			article := Article{Uuid: &id, DatePublished: &now, Publisher: &email, Text: &text, Title: &title}
+			bytes, err := json.Marshal(article)
+			panicerr(err)
 
-		key, _ := b.Cursor().First()
-		if key == nil {
-			b.Put([]byte(id), bytes)
-			get := b.Get([]byte(id))
-			log.Print("Successfully put into database ", id, string(get))
+			key, _ := b.Cursor().First()
+			if key == nil {
+				b.Put([]byte(id), bytes)
+				get := b.Get([]byte(id))
+				log.Print("Successfully put into database ", id, string(get))
+			}
 		}
 
 		return nil
 	})
+}
+
+func closeConnection() error {
+	var err error
+	if db != nil {
+		err = db.Close()
+	}
+	return err
 }
 
 func getArticles(includeDeleted bool) ([]Article, error) {

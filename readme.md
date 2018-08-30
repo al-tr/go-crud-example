@@ -1,6 +1,6 @@
 # CRUD example in Go language
 
-[![Build Status](https://travis-ci.com/al-tr/go-crud-example.svg?branch=master)](https://travis-ci.com/al-tr/go-crud-example) [![Go Report Card](https://goreportcard.com/badge/github.com/al-tr/go-crud-example)](https://goreportcard.com/report/github.com/al-tr/go-crud-example) [![Open Source Helpers](https://www.codetriage.com/al-tr/go-crud-example/badges/users.svg)](https://www.codetriage.com/al-tr/go-crud-example) [![Coverage Status](https://coveralls.io/repos/github/al-tr/go-crud-example/badge.svg?branch=master)](https://coveralls.io/github/al-tr/go-crud-example?branch=master)
+[![Build Status](https://travis-ci.com/al-tr/go-crud-example.svg?branch=master)](https://travis-ci.com/al-tr/go-crud-example) [![Go Report Card](https://goreportcard.com/badge/github.com/al-tr/go-crud-example)](https://goreportcard.com/report/github.com/al-tr/go-crud-example) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/324b9e1f987d4e0dbbb8e930e97c1b26)](https://www.codacy.com/app/al-tr/go-crud-example?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=al-tr/go-crud-example&amp;utm_campaign=Badge_Grade) [![Open Source Helpers](https://www.codetriage.com/al-tr/go-crud-example/badges/users.svg)](https://www.codetriage.com/al-tr/go-crud-example) [![Coverage Status](https://coveralls.io/repos/github/al-tr/go-crud-example/badge.svg?branch=master)](https://coveralls.io/github/al-tr/go-crud-example?branch=master)
 
 ### Endpoints:
 
